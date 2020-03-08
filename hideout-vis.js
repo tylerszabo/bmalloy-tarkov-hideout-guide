@@ -42,6 +42,10 @@ var colorGold = "#C2B7A3";
 var colorBlack = "#0e0e0e";
 var colorDarkTan = "#181714";
 
+var colorMissing = "#ff0000";
+var colorSatisfied = "#00ff00";
+var colorPending = "#ffff00";
+
 var locale = "en-US";
 
 var infoBox = document.getElementById("node-info");
@@ -57,23 +61,43 @@ checkbox.addEventListener("change", event => {
 });
 
 // hover effects
-var hoverChosenNode = function(values, id, selected, hovering) {
+var chosenNode = function(values, id, selected, hovering) {
   var node = network.body.nodes[id];
-  console.log(values);
+
+  var unsatisfiedDependencies =
+    node.edges
+    .filter(edge => edge.toId == node.id)
+    .map(edge => edge.from)
+    .filter(d => !d.selected);
+
+  var color = colorMissing;
+  if (selected && unsatisfiedDependencies.length == 0) {
+    color = colorSatisfied;
+  } else if (selected) {
+    color = colorPending;
+  }
+
   values.shadow = true;
-  values.shadowColor = "#ff0000";
+  values.shadowColor = color;
   values.shadowX = 0;
   values.shadowY = 0;
   values.shadowSize = 20;
 };
-var hoverChosenEdge = function(values, id, selected, hovering) {
-  values.color = "#ff0000";
+var chosenEdge = function(values, id, selected, hovering) {
+  var edge = network.body.edges[id];
+
+  var color = colorMissing;
+  if (edge.from.selected) {
+    color = colorSatisfied;
+  }
+
+  values.color = color;
   values.opacity = 1.0;
   values.dashes = false;
   values.shadowX = 0;
   values.shadowY = 0;
   values.shadow = true;
-  values.shadowColor = "#ff0000";
+  values.shadowColor = color;
 };
 
 // Edges are common to all locales, so we don't need to split them out
@@ -497,6 +521,8 @@ var data = {
 
 var options = {
   interaction: {
+    multiselect: true,
+    dragNodes: false,
     hover: true,
     navigationButtons: false,
     keyboard: true
@@ -508,7 +534,7 @@ var options = {
       background: colorBlack
     },
     font: { color: "#eeeeee" },
-    chosen: { node: hoverChosenNode }
+    chosen: { node: chosenNode }
   },
   edges: {
     color: {
@@ -516,7 +542,7 @@ var options = {
       opacity: 0.33
     },
     width: 1,
-    chosen: { edge: hoverChosenEdge },
+    chosen: { edge: chosenEdge },
     smooth: { enabled: true }
   },
   manipulation: {
@@ -681,15 +707,18 @@ network.on("click", function(params) {
   if (params.nodes && params.nodes.length > 0) {
     var selectedNodeId = params.nodes[0];
     var node = network.body.nodes[selectedNodeId];
+    var infoBoxHtml = "<h2>" + node.options.title + "</h2>";
+    infoBoxHtml += "\n" + formatRequirements(node.options.requirements);
+    infoBox.innerHTML = infoBoxHtml;
+
     if (shouldShowAllAncestors()) {
       // un-hover all other nodes, or we'll just light everything up
       unHoverNodesAndEdges();
       // highlight all ancestor nodes recursively
-      hoverAllAncestors(node.id);
+      network.getSelectedNodes().forEach(nodeId => hoverAllAncestors(nodeId));
     }
-    var infoBoxHtml = "<h2>" + node.options.title + "</h2>";
-    infoBoxHtml += "\n" + formatRequirements(node.options.requirements);
-    infoBox.innerHTML = infoBoxHtml;
+  } else {
+    unHoverNodesAndEdges();
   }
 });
 
