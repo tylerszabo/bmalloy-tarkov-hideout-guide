@@ -42,7 +42,7 @@ var colorGold = "#C2B7A3";
 var colorBlack = "#0e0e0e";
 var colorDarkTan = "#181714";
 
-var locale = "ru-RU";
+var locale = "en-US";
 
 var infoBox = document.getElementById("node-info");
 
@@ -478,7 +478,7 @@ var stationRequirements = [
 ];
 
 // create an array with nodes
-var nodes = new vis.DataSet(stations_ru_RU);
+var nodes = new vis.DataSet(stations_en_US);
 
 // ex: Stash 1 -> Stash 2
 // ex: Workshop req. for Intel Center
