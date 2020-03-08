@@ -48,16 +48,19 @@ var colorPending = "#ffff00";
 
 var locale = "en-US";
 
+var cookieName = "hideoutSelected";
+
 var infoBox = document.getElementById("node-info");
 
 var checkbox = document.getElementById("shouldShowAllAncestors");
-checkbox.addEventListener("change", event => {
-  if (event.target.checked) {
-    return;
-  } else {
+checkbox.addEventListener('change', event => {
+  if (!event.target.checked) {
     unHoverNodesAndEdges();
-    network.redraw();
+  } else {
+    showAncestors();
   }
+  network.redraw();
+  saveCookie();
 });
 
 // hover effects
@@ -559,6 +562,8 @@ var options = {
 };
 
 var network = new vis.Network(container, data, options);
+loadStateFromCookie();
+
 
 function shouldShowAllAncestors() {
   var checkbox = document.getElementById("shouldShowAllAncestors");
@@ -712,14 +717,13 @@ network.on("click", function(params) {
     infoBox.innerHTML = infoBoxHtml;
 
     if (shouldShowAllAncestors()) {
-      // un-hover all other nodes, or we'll just light everything up
-      unHoverNodesAndEdges();
-      // highlight all ancestor nodes recursively
-      network.getSelectedNodes().forEach(nodeId => hoverAllAncestors(nodeId));
+      showAncestors();
     }
   } else {
     unHoverNodesAndEdges();
   }
+
+  saveCookie();
 });
 
 // Since scaling isn't working on Chrome, in place of a fixed size
@@ -757,6 +761,7 @@ function switchToEn() {
     edges: edges
   };
   network.setData(newData);
+  loadStateFromCookie();
 }
 
 function switchToRu() {
@@ -768,4 +773,36 @@ function switchToRu() {
     edges: edges
   };
   network.setData(newData);
+  loadStateFromCookie();
+}
+
+function showAncestors() {
+  // un-hover all other nodes, or we'll just light everything up
+  unHoverNodesAndEdges();
+  // highlight all ancestor nodes recursively
+  network.getSelectedNodes().forEach(nodeId => hoverAllAncestors(nodeId));
+}
+
+function saveCookie() {
+  var cookieValue = {
+    "version" : 1,
+    "selectedNodes" : network.getSelectedNodes(),
+    "showAncestors" : shouldShowAllAncestors(),
+  };
+  var cookieString = cookieName + "=" + JSON.stringify(cookieValue) + ";expires=" + (new Date(Date.now() + 365*24*60*60*1000).toUTCString()) + ";path=/";
+  document.cookie = cookieString;
+}
+
+function loadStateFromCookie() {
+  decodeURIComponent(document.cookie).split("; ").forEach(cookie => {
+    if (cookie.startsWith(cookieName + "=")) {
+      var values = JSON.parse(cookie.substring(cookieName.length + 1));
+
+      network.selectNodes(values.selectedNodes);
+      document.getElementById("shouldShowAllAncestors").checked = values.showAncestors;
+      if (values.showAncestors) {
+        showAncestors();
+      }
+    }
+  });
 }
