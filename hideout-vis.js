@@ -1,4 +1,21 @@
 /*
+  Modifications Copyright (C) 2020 Tyler Szabo
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  This is derivative of "Escape From Tarkov Hideout Guide":
+
   Copyright (c) 2020 Bradley Malloy
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,7 +43,6 @@ var colorBlack = "#0e0e0e";
 var colorDarkTan = "#181714";
 
 var locale = "ru-RU";
-var wikiBaseUrl = "https://escapefromtarkov-ru.gamepedia.com/";
 
 var infoBox = document.getElementById("node-info");
 
@@ -557,9 +573,18 @@ function formatRequirements(requirementsObject) {
   if (locale == "en-US") {
     output += "<h3>Items</h3>";
   }
-  if (locale = "ru-RU") {
+  if (locale == "ru-RU") {
     output += "<h3>Предметы</h3>";
   }
+
+  var wikiBaseUrl;
+  if (locale == "en-US") {
+    wikiBaseUrl = "https://escapefromtarkov.gamepedia.com/";
+  }
+  if (locale == "ru-RU") {
+    wikiBaseUrl = "https://escapefromtarkov-ru.gamepedia.com/";
+  }
+
   if (requirementsObject.items && requirementsObject.items.length > 0) {
     output += "<ul>";
     requirementsObject.items.forEach(itemArray => {
@@ -583,14 +608,14 @@ function formatRequirements(requirementsObject) {
     if (locale == "en-US") {
       output += "<p>No item requirements!</p>";
     }
-    if (locale = "ru-RU") {
+    if (locale == "ru-RU") {
       output += "<p>Нет требований к товару!</p>";
     }
   }
   if (locale == "en-US") {
     output += "<h3>Loyalty</h3>";
   }
-  if (locale = "ru-RU") {
+  if (locale == "ru-RU") {
     output += "<h3>Лояльность</h3>";
   }
   if (requirementsObject.loyalty && requirementsObject.loyalty.length > 0) {
@@ -612,14 +637,14 @@ function formatRequirements(requirementsObject) {
     if (locale == "en-US") {
       output += "<p>No vendor loyalty requirements!</p>";
     }
-    if (locale = "ru-RU") {
+    if (locale == "ru-RU") {
       output += "<p>Нет требований лояльности к продавцу!</p>";
     }
   }
   if (locale == "en-US") {
     output += "<h3>Skills</h3>";
   }
-  if (locale = "ru-RU") {
+  if (locale == "ru-RU") {
     output += "<h3>Умение</h3>";
   }
   if (requirementsObject.skills && requirementsObject.skills.length > 0) {
@@ -644,7 +669,7 @@ function formatRequirements(requirementsObject) {
     if (locale == "en-US") {
       output += "<p>No skill requirements!</p>";
     }
-    if (locale = "ru-RU") {
+    if (locale == "ru-RU") {
       output += "<p>Нет требований к навыкам!</p>";
     }
   }
@@ -697,7 +722,6 @@ function toggleRoadmap() {
 function switchToEn() {
   console.log("Switching to English!");
   locale = "en-US";
-  wikiBaseUrl = "https://escapefromtarkov.gamepedia.com/";
   var newNodes = new vis.DataSet(stations_en_US);
   var newData = {
     nodes: newNodes,
@@ -709,7 +733,6 @@ function switchToEn() {
 function switchToRu() {
   console.log("Switching to Russian!");
   locale = "ru-RU";
-  wikiBaseUrl = "https://escapefromtarkov-ru.gamepedia.com/";
   var newNodes = new vis.DataSet(stations_ru_RU);
   var newData = {
     nodes: newNodes,
